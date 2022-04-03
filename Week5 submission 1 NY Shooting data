@@ -1,0 +1,140 @@
+---
+title: "Week3 submission NYPD Shooting Incident Data Report"
+output:
+  pdf_document: default
+  html_document: default
+date: '2022-03-27'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## NYPD Shooting Incident Data Report
+
+We analyzed NY Shooting data by using a website (https://catalog.data.gov/dataset). The dataset is titled NYPD Shooting Incident Data (Historic). 
+Especially number of incident of each year by each borough were analysed.
+The steps we did are as follows.
+
+Step1: Start an Rmd Document
+ We Created an RMD document in R Studio.
+
+Step2.Tidy and Transform Your Data
+ The number of occurrences for each year was totaled for each borough (STATEN ISLAND, BRONX, BROOLKLYN, MANHATTAN, QUEENS) regarding NYPD shooting Incident data. 
+ Specifically, we filtered the original data by the borough.
+ And the year part of Occurred Date was cut out from the original data and aggregated for each year.
+ See below programming for details.
+
+Step 3: Add Visualizations and Analysis
+ The aggregated results for each borough were summarized, and then regression analysis was performed.
+ The table below are aggregated results for each borough for number of incident.
+ 
+ |Borough      |Max|Min|Mean|
+ |-----        |---|---|----|
+ |Staten Island|69.9|25.0|46.4|
+ |Bronx        |571.0|267.0|446.7|
+ |Brooklyn     |850.0|357.0|648.9|
+ |Manhattan    |288.0|105.0|194.8|
+ |Queens       |326.0|144.0|235.5|
+ 
+ As a result of regression analysis, all borough (STATEN ISLAND, BRONX, BROOLKLYN, MANHATTAN, QUEENS) from 2006 to 2020,
+ the slope is negative, and it can be said that the number of shootings incident is on the decline.
+ See the graph for each subsequent borough.
+
+
+Step 4: Add Bias Identification
+ This analysis is analyzed using data from 2006 to 2020. The data for 2020 are far from the straight line graph in every region.
+ Therefore, it is a downward trend before 2020, but when the data after 2021 are aggregated
+ It may rise, so further analysis is needed.
+
+
+
+```{r}
+
+##Load library tidyverse and lubridate.
+library(tidyverse)
+library(lubridate)
+
+##Load CSV from the WebSite
+
+url_ny <- "https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv?accessType=DOWNLOAD"
+ny_shoot <- read_csv(url_ny[1])
+
+##STATEN ISLAND data. Aggregate the number by Year. 
+ny_date_si <- ny_shoot %>% 
+             filter(BORO == "STATEN ISLAND")%>%
+             mutate(Year=year(mdy(OCCUR_DATE)))%>%
+             group_by(Year)%>%
+             summarize(
+              n_count = n()
+              )
+##BRONX data Aggregate the number by Year. 
+ny_date_bx <- ny_shoot %>% 
+             filter(BORO == "BRONX")%>%
+             mutate(Year=year(mdy(OCCUR_DATE)))%>%
+             group_by(Year)%>%
+             summarize(
+              n_count = n()
+              )
+##BROOKLYN data Aggregate the number by Year. 
+ny_date_br <- ny_shoot %>% 
+             filter(BORO == "BROOKLYN")%>%
+             mutate(Year=year(mdy(OCCUR_DATE)))%>%
+             group_by(Year)%>%
+             summarize(
+              n_count = n()
+              )
+##MANHATTAN data Aggregate the number by Year. 
+ny_date_ma <- ny_shoot %>% 
+             filter(BORO == "MANHATTAN")%>%
+             mutate(Year=year(mdy(OCCUR_DATE)))%>%
+             group_by(Year)%>%
+             summarize(
+              n_count = n()
+              )
+##QUEENS data Aggregate the number by Year. 
+ny_date_qu <- ny_shoot %>% 
+             filter(BORO == "QUEENS")%>%
+             mutate(Year=year(mdy(OCCUR_DATE)))%>%
+             group_by(Year)%>%
+             summarize(
+              n_count = n()
+              )
+
+##Summary of each borough. 
+summary(ny_date_si)
+summary(ny_date_bx)
+summary(ny_date_br)
+summary(ny_date_ma)
+summary(ny_date_qu)
+
+
+##Regression analysis for Staten Island data. 
+lm_si = lm(formula = n_count ~ Year, data = ny_date_si)
+plot( x = ny_date_si$Year, ny_date_si$n_count,xlab = "Year", ylab = "N_count of Staten Island" )
+abline( lm_si, col = "red", lwd = 4 )
+
+##Regression analysis for Bronx data. 
+lm_bx = lm(formula = n_count ~ Year, data = ny_date_bx)
+plot( x = ny_date_bx$Year, ny_date_bx$n_count,xlab = "Year", ylab = "N_count of Bronx" )
+abline( lm_bx, col = "red", lwd = 4 )
+
+##Regression analysis for Brooklyn data.
+lm_br = lm(formula = n_count ~ Year, data = ny_date_br)
+plot( x = ny_date_br$Year, ny_date_br$n_count,xlab = "Year", ylab = "N_count of Brooklyn" )
+abline( lm_br, col = "red", lwd = 4 )
+
+##Regression analysis for Manhattan data.
+lm_ma = lm(formula = n_count ~ Year, data = ny_date_ma)
+plot( x = ny_date_ma$Year, ny_date_ma$n_count,xlab = "Year", ylab = "N_count of Manhattan" )
+abline( lm_ma, col = "red", lwd = 4 )
+
+##Regression analysis for Queens data.
+lm_qu = lm(formula = n_count ~ Year, data = ny_date_qu)
+plot( x = ny_date_qu$Year, ny_date_qu$n_count,xlab = "Year", ylab = "N_count of Queens" )
+abline( lm_qu, col = "red", lwd = 4 )
+
+
+```
+
+
